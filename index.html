@@ -1,275 +1,289 @@
-import React from 'react';
-import { 
-  Search, 
-  Plus, 
-  Users, 
-  CheckCircle2, 
-  Clock, 
-  ArrowUpRight, 
-  Filter, 
-  ExternalLink,
-  ChevronRight,
-  TrendingUp,
-  TrendingDown,
-  Linkedin,
-  Github,
-  Menu
-} from 'lucide-react';
-
-// --- Sub-components for the Dashboard ---
-
-const StatCard = ({ title, value, change, icon: Icon, trend }) => (
-  <div className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-    <div className="flex justify-between items-start mb-4">
-      <div className="p-2 bg-blue-50 rounded-lg">
-        <Icon size={20} className="text-blue-600" />
-      </div>
-      <div className={`flex items-center gap-1 text-xs font-bold ${trend === 'up' ? 'text-emerald-500' : 'text-rose-500'}`}>
-        {change}
-        {trend === 'up' ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-      </div>
-    </div>
-    <h3 className="text-gray-500 text-xs md:text-sm font-medium">{title}</h3>
-    <p className="text-xl md:text-2xl font-bold text-gray-900 mt-1">{value}</p>
-  </div>
-);
-
-const CandidateRow = ({ name, role, status, match, source, date }) => {
-  const statusColors = {
-    'Interviewing': 'bg-amber-100 text-amber-700',
-    'Screening': 'bg-blue-100 text-blue-700',
-    'Offered': 'bg-emerald-100 text-emerald-700',
-    'Rejected': 'bg-gray-100 text-gray-700',
-  };
-
-  return (
-    <tr className="group hover:bg-gray-50/50 transition-colors">
-      <td className="py-4 pl-4 md:pl-6 sticky left-0 bg-white group-hover:bg-gray-50/50 z-20 border-r border-gray-50 md:border-none">
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex w-8 h-8 rounded-full bg-gradient-to-tr from-slate-200 to-slate-100 items-center justify-center text-[10px] font-bold text-slate-500 flex-shrink-0">
-            {name.split(' ').map(n => n[0]).join('')}
-          </div>
-          <div className="min-w-[120px]">
-            <div className="text-sm font-bold text-gray-900 truncate">{name}</div>
-            <div className="text-[10px] md:text-[11px] text-gray-400 font-medium truncate">{role}</div>
-          </div>
-        </div>
-      </td>
-      <td className="py-4 px-4">
-        <span className={`px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${statusColors[status] || 'bg-gray-100'}`}>
-          {status}
-        </span>
-      </td>
-      <td className="py-4 px-4">
-        <div className="flex items-center gap-2 min-w-[80px]">
-          <div className="w-8 md:w-12 bg-gray-100 h-1.5 rounded-full overflow-hidden">
-            <div 
-              className={`h-full rounded-full ${match > 90 ? 'bg-emerald-500' : 'bg-blue-500'}`} 
-              style={{ width: `${match}%` }}
-            />
-          </div>
-          <span className="text-xs font-bold text-gray-700">{match}%</span>
-        </div>
-      </td>
-      <td className="py-4 px-4">
-        <span className="text-xs text-gray-500 font-medium whitespace-nowrap">{source}</span>
-      </td>
-      <td className="py-4 px-4">
-        <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{date}</span>
-      </td>
-      <td className="py-4 pr-4 md:pr-6 text-right">
-        <button className="p-2 hover:bg-blue-50 rounded-lg text-gray-300 hover:text-blue-600 transition-all">
-          <ExternalLink size={14} />
-        </button>
-      </td>
-    </tr>
-  );
-};
-
-// --- Main App Component ---
-
-export default function App() {
-  return (
-    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-blue-100 overflow-x-hidden">
-      <style>{`
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruitment Pulse | synapse.surf</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel standalone for in-browser JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
         .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Asegurar que el sticky header de la tabla no oculte el scroll horizontal */
         .table-container { -webkit-overflow-scrolling: touch; }
-      `}</style>
+    </style>
+</head>
+<body class="bg-white text-slate-900 selection:bg-blue-100 overflow-x-hidden">
 
-      {/* Header / Navbar */}
-      <nav className="border-b border-gray-100 bg-white sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center gap-2 md:gap-3 cursor-pointer">
-              <img 
-                src="/media/logos/synapse.surf.png" 
-                alt="synapse.surf logo" 
-                className="h-7 md:h-8 w-auto"
-                onError={(e) => { e.target.src = "https://via.placeholder.com/32?text=S"; }}
-              />
-              <span className="font-bold text-lg md:text-xl tracking-tight text-slate-900">synapse.surf</span>
+    <!-- React Mount Point -->
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- Sub-components for the Dashboard ---
+
+        const StatCard = ({ title, value, change, icon, trend }) => (
+            <div className="bg-white p-5 md:p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-start mb-4">
+                    <div className="p-2 bg-blue-50 rounded-lg flex items-center justify-center w-10 h-10">
+                        <i className={`${icon} text-blue-600 text-lg`}></i>
+                    </div>
+                    <div className={`flex items-center gap-1 text-xs font-bold ${trend === 'up' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                        {change}
+                        <i className={`fas ${trend === 'up' ? 'fa-arrow-up' : 'fa-arrow-down'} text-[10px]`}></i>
+                    </div>
+                </div>
+                <h3 className="text-gray-500 text-xs md:text-sm font-medium">{title}</h3>
+                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-1">{value}</p>
             </div>
-            
-            {/* Desktop Nav */}
-            <div className="hidden md:flex space-x-8 text-sm font-medium text-gray-500">
-              <a href="#" className="hover:text-black transition">Inicio</a>
-              <a href="#" className="text-black border-b-2 border-blue-600 pb-5 translate-y-2.5">Recruitment</a>
-              <a href="#" className="hover:text-black transition">Seguridad</a>
-            </div>
+        );
 
-            <div className="flex items-center gap-2 md:gap-4">
-              <button className="hidden sm:block text-sm font-medium hover:text-gray-600 transition">Login</button>
-              <button className="bg-blue-600 text-white px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
-                Dashboard
-              </button>
-              <button className="md:hidden p-2 text-gray-500">
-                <Menu size={20} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+        const CandidateRow = ({ name, role, status, match, source, date }) => {
+            const statusColors = {
+                'Interviewing': 'bg-amber-100 text-amber-700',
+                'Screening': 'bg-blue-100 text-blue-700',
+                'Offered': 'bg-emerald-100 text-emerald-700',
+                'Rejected': 'bg-gray-100 text-gray-700',
+            };
 
-      {/* Main Content Area */}
-      <main className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-20">
-        
-        {/* Responsive Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 md:mb-10">
-          <div className="animate-fade-in">
-            <h1 className="text-2xl md:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">Recruitment Pulse</h1>
-            <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium italic">MCP Integrated LinkedIn Sourcing</p>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <div className="relative flex-1 sm:min-w-[280px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-              <input 
-                type="text" 
-                placeholder="Find candidates..." 
-                className="w-full pl-9 pr-4 py-2.5 glass rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm font-medium transition-all"
-              />
-            </div>
-            <button className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-200 transition-transform active:scale-95 text-sm whitespace-nowrap">
-              <Plus size={18} />
-              <span className="inline">New Scan</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Stats Grid - Fluid Responsive Column Count */}
-        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-10 animate-fade-in" style={{ animationDelay: '0.15s' }}>
-          <StatCard title="Profiles Found" value="1,284" change="+12%" icon={Users} trend="up" />
-          <StatCard title="Match Accuracy" value="94.2%" change="+2%" icon={CheckCircle2} trend="up" />
-          <StatCard title="Avg. Scan Time" value="1.4s" change="-0.2s" icon={Clock} trend="up" />
-          <StatCard title="Pipeline Rate" value="38%" change="-1%" icon={ArrowUpRight} trend="down" />
-        </div>
-
-        {/* Pipeline Table Container */}
-        <div className="glass rounded-2xl border border-gray-100 shadow-xl shadow-blue-900/5 overflow-hidden animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          <div className="px-5 md:px-6 py-4 md:py-5 border-b border-gray-50 flex items-center justify-between bg-white/40">
-            <h2 className="text-md md:text-lg font-extrabold text-gray-900">Acquisition Logs</h2>
-            <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors">
-              <Filter size={18} />
-            </button>
-          </div>
-          
-          {/* THE TABLE SCROLL CONTAINER */}
-          <div className="table-container w-full overflow-x-auto no-scrollbar touch-pan-x">
-            <table className="w-full text-left border-collapse min-w-[700px] md:min-w-full">
-              <thead>
-                <tr className="bg-gray-50/30 text-gray-400 text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest border-b border-gray-50">
-                  <th className="py-4 pl-4 md:pl-6 sticky left-0 bg-white/95 backdrop-blur-md z-20 border-r border-gray-50 md:border-none">Full Name</th>
-                  <th className="py-4 px-4">Status</th>
-                  <th className="py-4 px-4">MCP Match</th>
-                  <th className="py-4 px-4">Source Channel</th>
-                  <th className="py-4 px-4">Sync Date</th>
-                  <th className="py-4 pr-4 md:pr-6 text-right">View</th>
+            return (
+                <tr className="group hover:bg-gray-50/50 transition-colors">
+                    <td className="py-4 pl-4 md:pl-6 sticky left-0 bg-white group-hover:bg-gray-50/50 z-20 border-r border-gray-50 md:border-none">
+                        <div className="flex items-center gap-3">
+                            <div className="hidden sm:flex w-8 h-8 rounded-full bg-gradient-to-tr from-slate-200 to-slate-100 items-center justify-center text-[10px] font-bold text-slate-500 flex-shrink-0">
+                                {name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div className="min-w-[120px]">
+                                <div className="text-sm font-bold text-gray-900 truncate">{name}</div>
+                                <div className="text-[10px] md:text-[11px] text-gray-400 font-medium truncate">{role}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td className="py-4 px-4">
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-bold uppercase tracking-wider whitespace-nowrap ${statusColors[status] || 'bg-gray-100'}`}>
+                            {status}
+                        </span>
+                    </td>
+                    <td className="py-4 px-4">
+                        <div className="flex items-center gap-2 min-w-[80px]">
+                            <div className="w-8 md:w-12 bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                                <div 
+                                    className={`h-full rounded-full ${match > 90 ? 'bg-emerald-500' : 'bg-blue-500'}`} 
+                                    style={{ width: `${match}%` }}
+                                />
+                            </div>
+                            <span className="text-xs font-bold text-gray-700">{match}%</span>
+                        </div>
+                    </td>
+                    <td className="py-4 px-4">
+                        <span className="text-xs text-gray-500 font-medium whitespace-nowrap">{source}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                        <span className="text-xs text-gray-400 font-medium whitespace-nowrap">{date}</span>
+                    </td>
+                    <td className="py-4 pr-4 md:pr-6 text-right">
+                        <button className="p-2 hover:bg-blue-50 rounded-lg text-gray-300 hover:text-blue-600 transition-all">
+                            <i className="fas fa-external-link-alt text-sm"></i>
+                        </button>
+                    </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50 bg-white/20">
-                <CandidateRow name="Sarah Jenkins" role="Sr. Product Designer" status="Interviewing" match={94} source="LinkedIn Premium" date="2h ago" />
-                <CandidateRow name="Marcus Thorne" role="React Architect" status="Screening" match={88} source="Auto-Scrape" date="5h ago" />
-                <CandidateRow name="Elena Rodriguez" role="Director of Growth" status="Offered" match={97} source="MCP Network" date="Yesterday" />
-                <CandidateRow name="David Kim" role="DevOps Engineer" status="Rejected" match={62} source="Direct Search" date="2d ago" />
-                <CandidateRow name="Jessica Chen" role="Data Scientist" status="Interviewing" match={91} source="Sync Pipeline" date="3d ago" />
-              </tbody>
-            </table>
-          </div>
-          
-          <div className="px-5 md:px-6 py-4 bg-gray-50/20 border-t border-gray-50 flex items-center justify-between text-[10px] md:text-[11px] font-bold text-gray-500">
-            <span>5 Results</span>
-            <div className="flex gap-2">
-              <button className="px-2 md:px-3 py-1 bg-white border border-gray-200 rounded-lg hover:border-blue-300 transition-all">Prev</button>
-              <button className="px-2 md:px-3 py-1 bg-white border border-gray-200 rounded-lg hover:border-blue-300 transition-all">Next</button>
-            </div>
-          </div>
-        </div>
-      </main>
+            );
+        };
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-100 pt-12 md:pt-16 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-12">
-            <div className="sm:col-span-2">
-              <div className="flex items-center gap-3 mb-6">
-                <img 
-                  src="/media/logos/synapse.surf.png" 
-                  alt="synapse.surf logo" 
-                  className="h-7 md:h-8 w-auto"
-                />
-                <span className="font-bold text-lg md:text-xl tracking-tight text-slate-800">synapse.surf</span>
-              </div>
-              <p className="text-slate-500 max-w-sm mb-6 text-sm leading-relaxed">
-                Liderando la integración de talento tecnológico latinoamericano para empresas globales con un enfoque implacable en la seguridad.
-              </p>
-              <div className="flex gap-4 text-slate-400">
-                <a href="https://www.linkedin.com/company/the-meyer-eu" target="_blank" rel="noreferrer" className="hover:text-blue-600 transition-colors">
-                  <Linkedin size={20} />
-                </a>
-                <a href="https://github.com/cypher-the-meyer" target="_blank" rel="noreferrer" className="hover:text-blue-600 transition-colors">
-                  <Github size={20} />
-                </a>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-bold text-slate-900 mb-4 md:mb-6 text-sm">Servicios</h4>
-              <ul className="space-y-3 md:space-y-4 text-slate-500 text-xs md:text-sm">
-                <li><a href="#" className="hover:text-blue-600 transition-colors">Freelance Staffing</a></li>
-                <li><a href="#" className="hover:text-blue-600 transition-colors">Consultoría IAM</a></li>
-                <li><a href="#" className="hover:text-blue-600 transition-colors">Auditoría Zero Trust</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-slate-900 mb-4 md:mb-6 text-sm">Legal</h4>
-              <ul className="space-y-3 md:space-y-4 text-slate-500 text-xs md:text-sm">
-                <li><a href="#" className="hover:text-blue-600 transition-colors">Privacidad</a></li>
-                <li><a href="#" className="hover:text-blue-600 transition-colors">Términos</a></li>
-                <li><a href="#" className="hover:text-blue-600 transition-colors">GDPR</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-slate-50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-slate-400 text-[10px] md:text-xs font-medium text-center md:text-left">
-              © 2025 synapse.surf. Todos los derechos reservados.
-            </p>
-            <div className="flex items-center gap-6">
-              <span className="flex items-center gap-2 text-[10px] md:text-xs text-slate-500 font-bold">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                Sistemas Operativos
-              </span>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-}
+        // --- Main App Component ---
+
+        const App = () => {
+            return (
+                <React.Fragment>
+                    {/* Header / Navbar */}
+                    <nav className="border-b border-gray-100 bg-white sticky top-0 z-50">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex justify-between h-16 items-center">
+                                <div className="flex items-center gap-2 md:gap-3 cursor-pointer">
+                                    <img 
+                                        src="/media/logos/synapse.surf.png" 
+                                        alt="synapse.surf logo" 
+                                        className="h-7 md:h-8 w-auto"
+                                        onError={(e) => { e.target.src = "https://via.placeholder.com/32?text=S"; }}
+                                    />
+                                    <span className="font-bold text-lg md:text-xl tracking-tight text-slate-900">synapse.surf</span>
+                                </div>
+                                
+                                {/* Desktop Nav */}
+                                <div className="hidden md:flex space-x-8 text-sm font-medium text-gray-500">
+                                    <a href="#" className="hover:text-black transition">Inicio</a>
+                                    <a href="#" className="text-black border-b-2 border-blue-600 pb-5 translate-y-2.5">Recruitment</a>
+                                    <a href="#" className="hover:text-black transition">Seguridad</a>
+                                </div>
+
+                                <div className="flex items-center gap-2 md:gap-4">
+                                    <button className="hidden sm:block text-sm font-medium hover:text-gray-600 transition">Login</button>
+                                    <button className="bg-blue-600 text-white px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                                        Dashboard
+                                    </button>
+                                    <button className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded">
+                                        <i className="fas fa-bars text-lg"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Main Content Area */}
+                    <main className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-20">
+                        
+                        {/* Responsive Header */}
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 md:mb-10">
+                            <div className="animate-fade-in">
+                                <h1 className="text-2xl md:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">Recruitment Pulse</h1>
+                                <p className="text-xs md:text-sm text-gray-500 mt-1 font-medium italic">MCP Integrated LinkedIn Sourcing</p>
+                            </div>
+                            
+                            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                                <div className="relative flex-1 sm:min-w-[280px]">
+                                    <i className="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Find candidates..." 
+                                        className="w-full pl-10 pr-4 py-2.5 glass rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm font-medium transition-all"
+                                    />
+                                </div>
+                                <button className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-200 transition-transform active:scale-95 text-sm whitespace-nowrap hover:bg-blue-700">
+                                    <i className="fas fa-plus"></i>
+                                    <span className="inline">New Scan</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Stats Grid - Fluid Responsive Column Count */}
+                        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-10 animate-fade-in" style={{ animationDelay: '0.15s' }}>
+                            <StatCard title="Profiles Found" value="1,284" change="+12%" icon="fas fa-users" trend="up" />
+                            <StatCard title="Match Accuracy" value="94.2%" change="+2%" icon="fas fa-check-circle" trend="up" />
+                            <StatCard title="Avg. Scan Time" value="1.4s" change="-0.2s" icon="fas fa-clock" trend="up" />
+                            <StatCard title="Pipeline Rate" value="38%" change="-1%" icon="fas fa-chart-line" trend="down" />
+                        </div>
+
+                        {/* Pipeline Table Container */}
+                        <div className="glass rounded-2xl border border-gray-100 shadow-xl shadow-blue-900/5 overflow-hidden animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                            <div className="px-5 md:px-6 py-4 md:py-5 border-b border-gray-50 flex items-center justify-between bg-white/40">
+                                <h2 className="text-md md:text-lg font-extrabold text-gray-900">Acquisition Logs</h2>
+                                <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors">
+                                    <i className="fas fa-filter"></i>
+                                </button>
+                            </div>
+                            
+                            {/* THE TABLE SCROLL CONTAINER */}
+                            <div className="table-container w-full overflow-x-auto no-scrollbar touch-pan-x">
+                                <table className="w-full text-left border-collapse min-w-[700px] md:min-w-full">
+                                    <thead>
+                                        <tr className="bg-gray-50/30 text-gray-400 text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest border-b border-gray-50">
+                                            <th className="py-4 pl-4 md:pl-6 sticky left-0 bg-white/95 backdrop-blur-md z-20 border-r border-gray-50 md:border-none">Full Name</th>
+                                            <th className="py-4 px-4">Status</th>
+                                            <th className="py-4 px-4">MCP Match</th>
+                                            <th className="py-4 px-4">Source Channel</th>
+                                            <th className="py-4 px-4">Sync Date</th>
+                                            <th className="py-4 pr-4 md:pr-6 text-right">View</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50 bg-white/20">
+                                        <CandidateRow name="Sarah Jenkins" role="Sr. Product Designer" status="Interviewing" match={94} source="LinkedIn Premium" date="2h ago" />
+                                        <CandidateRow name="Marcus Thorne" role="React Architect" status="Screening" match={88} source="Auto-Scrape" date="5h ago" />
+                                        <CandidateRow name="Elena Rodriguez" role="Director of Growth" status="Offered" match={97} source="MCP Network" date="Yesterday" />
+                                        <CandidateRow name="David Kim" role="DevOps Engineer" status="Rejected" match={62} source="Direct Search" date="2d ago" />
+                                        <CandidateRow name="Jessica Chen" role="Data Scientist" status="Interviewing" match={91} source="Sync Pipeline" date="3d ago" />
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div className="px-5 md:px-6 py-4 bg-gray-50/20 border-t border-gray-50 flex items-center justify-between text-[10px] md:text-[11px] font-bold text-gray-500">
+                                <span>5 Results</span>
+                                <div className="flex gap-2">
+                                    <button className="px-2 md:px-3 py-1 bg-white border border-gray-200 rounded-lg hover:border-blue-300 transition-all">Prev</button>
+                                    <button className="px-2 md:px-3 py-1 bg-white border border-gray-200 rounded-lg hover:border-blue-300 transition-all">Next</button>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="bg-white border-t border-slate-100 pt-12 md:pt-16 pb-8">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-12">
+                                <div className="sm:col-span-2">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <img 
+                                            src="/media/logos/synapse.surf.png" 
+                                            alt="synapse.surf logo" 
+                                            className="h-7 md:h-8 w-auto"
+                                        />
+                                        <span className="font-bold text-lg md:text-xl tracking-tight text-slate-800">synapse.surf</span>
+                                    </div>
+                                    <p className="text-slate-500 max-w-sm mb-6 text-sm leading-relaxed">
+                                        Liderando la integración de talento tecnológico latinoamericano para empresas globales con un enfoque implacable en la seguridad.
+                                    </p>
+                                    <div className="flex gap-4 text-slate-400">
+                                        <a href="https://www.linkedin.com/company/the-meyer-eu" target="_blank" rel="noreferrer" className="hover:text-blue-600 transition-colors">
+                                            <i className="fab fa-linkedin text-xl"></i>
+                                        </a>
+                                        <a href="https://github.com/cypher-the-meyer" target="_blank" rel="noreferrer" className="hover:text-blue-600 transition-colors">
+                                            <i className="fab fa-github text-xl"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-slate-900 mb-4 md:mb-6 text-sm">Servicios</h4>
+                                    <ul className="space-y-3 md:space-y-4 text-slate-500 text-xs md:text-sm">
+                                        <li><a href="#" className="hover:text-blue-600 transition-colors">Freelance Staffing</a></li>
+                                        <li><a href="#" className="hover:text-blue-600 transition-colors">Consultoría IAM</a></li>
+                                        <li><a href="#" className="hover:text-blue-600 transition-colors">Auditoría Zero Trust</a></li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-slate-900 mb-4 md:mb-6 text-sm">Legal</h4>
+                                    <ul className="space-y-3 md:space-y-4 text-slate-500 text-xs md:text-sm">
+                                        <li><a href="#" className="hover:text-blue-600 transition-colors">Privacidad</a></li>
+                                        <li><a href="#" className="hover:text-blue-600 transition-colors">Términos</a></li>
+                                        <li><a href="#" className="hover:text-blue-600 transition-colors">GDPR</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div className="border-t border-slate-50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                                <p className="text-slate-400 text-[10px] md:text-xs font-medium text-center md:text-left">
+                                    © 2025 synapse.surf. Todos los derechos reservados.
+                                </p>
+                                <div className="flex items-center gap-6">
+                                    <span className="flex items-center gap-2 text-[10px] md:text-xs text-slate-500 font-bold">
+                                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                        Sistemas Operativos
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </footer>
+                </React.Fragment>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
